@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/go-chi/render"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
-	"github.com/go-chi/render"
 
 	"google.golang.org/grpc"
 )
@@ -31,7 +31,7 @@ func GetJsonFromPostRequest(r *http.Request, v interface{}) error {
 func WriteSuccessJson(w http.ResponseWriter, r *http.Request, v interface{}) {
 	log.Printf("Returning success: %v", v)
 	var resp struct {
-		Value interface{} `json:"value"`
+		Value interface{} `json:"data"`
 	}
 	resp.Value = v
 	render.JSON(w, r, resp)
@@ -40,9 +40,11 @@ func WriteSuccessJson(w http.ResponseWriter, r *http.Request, v interface{}) {
 func WriteErrorJson(w http.ResponseWriter, r *http.Request, e error) {
 	log.Printf("Returning error: %v", e.Error())
 	var resp struct {
-		Message string `json:"error"`
+		Error struct {
+			Message string `json:"message"`
+		} `json:"error"`
 	}
-	resp.Message = e.Error()
+	resp.Error.Message = e.Error()
 	render.JSON(w, r, resp)
 }
 
