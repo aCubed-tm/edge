@@ -28,6 +28,11 @@ func GetJsonFromPostRequest(r *http.Request, v interface{}) error {
 	return nil
 }
 
+func WriteSuccess(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Returning success without payload")
+	// nothing to do, using this method to log and possibly extend in the future
+}
+
 func WriteSuccessJson(w http.ResponseWriter, r *http.Request, v interface{}) {
 	log.Printf("Returning success: %v", v)
 	var resp struct {

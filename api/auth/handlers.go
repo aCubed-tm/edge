@@ -16,7 +16,6 @@ func register(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
-		Token    string `json:"token"`
 	}
 
 	err := helpers.GetJsonFromPostRequest(r, &req)
@@ -25,14 +24,14 @@ func register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	success, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
 		// Contact the server and print out its response.
 		c := proto.NewAuthServiceClient(conn)
-		resp, err := c.Register(ctx, &proto.RegisterRequest{Email: req.Email, Password: req.Password, VerificationToken: req.Token})
+		_, err := c.Register(ctx, &proto.RegisterRequest{Email: req.Email, Password: req.Password})
 		if err != nil {
 			return nil, errors.New(fmt.Sprintf("could not log in: %v", err))
 		}
-		return resp.Success, nil
+		return nil, nil
 	})
 
 	if err != nil {
@@ -40,7 +39,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.WriteSuccessJson(w, r, success)
+	helpers.WriteSuccess(w, r)
 }
 
 func authenticate(w http.ResponseWriter, r *http.Request) {
