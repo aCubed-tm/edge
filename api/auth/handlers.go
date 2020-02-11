@@ -162,6 +162,7 @@ func dropCurrentToken(w http.ResponseWriter, r *http.Request) {
 	token, err := helpers.GetJwtToken(r)
 	if err != nil {
 		helpers.WriteErrorJson(w, r, err)
+		return
 	}
 
 	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
@@ -185,6 +186,7 @@ func dropAllTokens(w http.ResponseWriter, r *http.Request) {
 	token, err := helpers.GetJwtToken(r)
 	if err != nil {
 		helpers.WriteErrorJson(w, r, err)
+		return
 	}
 
 	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
