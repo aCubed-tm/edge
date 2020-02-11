@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-const service = "authenticationms.acubed:50551"
+const service = "authentication-service.acubed:50551"
 
 func register(w http.ResponseWriter, r *http.Request) {
 	var req struct {
