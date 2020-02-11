@@ -168,14 +168,18 @@ func dropCurrentToken(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteErrorJson(w, r, err)
 	}
 
-	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+	success, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
 		c := proto.NewAuthServiceClient(conn)
-		_, err := c.DropSingleToken(ctx, &proto.DropSingleTokenRequest{Token: token})
+		resp, err := c.DropSingleToken(ctx, &proto.DropSingleTokenRequest{Token: token})
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
-		return nil, nil
+		return resp.Success, nil
 	})
+
+	if !success.(bool) {
+		helpers.WriteErrorJson(w, r, errors.New("unknown error while dropping token"))
+	}
 
 	helpers.WriteSuccess(w, r)
 }
@@ -186,14 +190,18 @@ func dropAllTokens(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteErrorJson(w, r, err)
 	}
 
-	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+	success, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
 		c := proto.NewAuthServiceClient(conn)
-		_, err := c.DropAllTokens(ctx, &proto.DropAllTokensRequest{Token: token})
+		resp, err := c.DropAllTokens(ctx, &proto.DropAllTokensRequest{Token: token})
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
-		return nil, nil
+		return resp.Success, nil
 	})
+
+	if !success.(bool) {
+		helpers.WriteErrorJson(w, r, errors.New("unknown error while dropping tokens"))
+	}
 
 	helpers.WriteSuccess(w, r)
 }
