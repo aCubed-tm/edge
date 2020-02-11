@@ -136,3 +136,39 @@ func getUserUuidAndInvites(w http.ResponseWriter, r *http.Request) {
 		Invites: inviteUuids.([]string),
 	})
 }
+
+func dropCurrentToken(w http.ResponseWriter, r *http.Request) {
+	token, err := helpers.GetJwtToken(r)
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+	}
+
+	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+		c := proto.NewAuthServiceClient(conn)
+		_, err := c.DropSingleToken(ctx, &proto.DropSingleTokenRequest{Token: token})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return nil, nil
+	})
+
+	helpers.WriteSuccess(w, r)
+}
+
+func dropAllTokens(w http.ResponseWriter, r *http.Request) {
+	token, err := helpers.GetJwtToken(r)
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+	}
+
+	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+		c := proto.NewAuthServiceClient(conn)
+		_, err := c.DropAllTokens(ctx, &proto.DropAllTokensRequest{Token: token})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return nil, nil
+	})
+
+	helpers.WriteSuccess(w, r)
+}

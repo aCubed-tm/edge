@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"google.golang.org/grpc"
@@ -68,4 +69,17 @@ func RunGrpc(ip string, f func(context.Context, *grpc.ClientConn) (interface{}, 
 	_ = conn.Close()
 
 	return ret, err
+}
+
+func GetJwtToken(r *http.Request) (string, error) {
+	header := r.Header.Get("Authorization")
+	if header == "" {
+		return "", errors.New("couldn't find authorization header")
+	}
+
+	if !strings.HasPrefix(strings.ToLower(header), "bearer") {
+		return "", errors.New("authorization header didn't start with 'bearer'")
+	}
+
+	return header[7:], nil
 }
