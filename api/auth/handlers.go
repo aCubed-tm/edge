@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/acubed-tm/edge/helpers"
 	"github.com/acubed-tm/edge/protofiles"
+	"github.com/go-chi/chi"
 	"google.golang.org/grpc"
 	"net/http"
 )
@@ -55,7 +56,7 @@ func authenticate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type reply struct {
-		Token    string `json:"token"`
+		Token string `json:"token"`
 	}
 
 	resp, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
@@ -81,7 +82,7 @@ func getUserUuidAndInvites(w http.ResponseWriter, r *http.Request) {
 		Email string `json:"email"`
 	}
 	type resp struct {
-		Uuid string `json:"uuid"`
+		Uuid    string   `json:"uuid"`
 		Invites []string `json:"invites"`
 	}
 
@@ -131,10 +132,34 @@ func getUserUuidAndInvites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.WriteSuccessJson(w, r, resp {
+	helpers.WriteSuccessJson(w, r, resp{
 		Uuid:    accountUuid.(string),
 		Invites: inviteUuids.([]string),
 	})
+}
+
+func verifyEmail(w http.ResponseWriter, r *http.Request) {
+	emailVerificationToken := chi.URLParam(r, "token")
+
+	success, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+		c := proto.NewAuthServiceClient(conn)
+		res, err := c.ActivateEmail(ctx, &proto.ActivateEmailRequest{Token: emailVerificationToken})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return res.Success, nil
+	})
+
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
+
+	if success.(bool) {
+		helpers.WriteErrorJson(w, r, errors.New("email verification failed"))
+	}
+
+	http.Redirect(w, r, "portal.acubed.app", 301)
 }
 
 func dropCurrentToken(w http.ResponseWriter, r *http.Request) {
