@@ -124,7 +124,7 @@ func getUserUuidAndInvites(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
-		return resp.InviteUuids, nil
+		return resp.OrganizationUuids, nil
 	})
 
 	if err != nil {
@@ -141,22 +141,18 @@ func getUserUuidAndInvites(w http.ResponseWriter, r *http.Request) {
 func verifyEmail(w http.ResponseWriter, r *http.Request) {
 	emailVerificationToken := chi.URLParam(r, "token")
 
-	success, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+	_, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
 		c := proto.NewAuthServiceClient(conn)
-		res, err := c.ActivateEmail(ctx, &proto.ActivateEmailRequest{Token: emailVerificationToken})
+		_, err := c.ActivateEmail(ctx, &proto.ActivateEmailRequest{Token: emailVerificationToken})
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
-		return res.Success, nil
+		return nil, nil
 	})
 
 	if err != nil {
 		helpers.WriteErrorJson(w, r, err)
 		return
-	}
-
-	if success.(bool) {
-		helpers.WriteErrorJson(w, r, errors.New("email verification failed"))
 	}
 
 	http.Redirect(w, r, "portal.acubed.app", 301)
@@ -168,17 +164,18 @@ func dropCurrentToken(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteErrorJson(w, r, err)
 	}
 
-	success, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
 		c := proto.NewAuthServiceClient(conn)
-		resp, err := c.DropSingleToken(ctx, &proto.DropSingleTokenRequest{Token: token})
+		_, err := c.DropSingleToken(ctx, &proto.DropSingleTokenRequest{Token: token})
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
-		return resp.Success, nil
+		return nil, nil
 	})
 
-	if !success.(bool) {
-		helpers.WriteErrorJson(w, r, errors.New("unknown error while dropping token"))
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
 	}
 
 	helpers.WriteSuccess(w, r)
@@ -190,17 +187,18 @@ func dropAllTokens(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteErrorJson(w, r, err)
 	}
 
-	success, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
 		c := proto.NewAuthServiceClient(conn)
-		resp, err := c.DropAllTokens(ctx, &proto.DropAllTokensRequest{Token: token})
+		_, err := c.DropAllTokens(ctx, &proto.DropAllTokensRequest{Token: token})
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
-		return resp.Success, nil
+		return nil, nil
 	})
 
-	if !success.(bool) {
-		helpers.WriteErrorJson(w, r, errors.New("unknown error while dropping tokens"))
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
 	}
 
 	helpers.WriteSuccess(w, r)
