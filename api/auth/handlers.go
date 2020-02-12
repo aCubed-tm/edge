@@ -155,7 +155,7 @@ func verifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "portal.acubed.app", 301)
+	http.Redirect(w, r, "https://portal.acubed.app", 301)
 }
 
 func dropCurrentToken(w http.ResponseWriter, r *http.Request) {
