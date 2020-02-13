@@ -122,3 +122,108 @@ func createProfileUser(w http.ResponseWriter, r *http.Request) {
 
 	helpers.WriteSuccess(w, r)
 }
+
+func getProfileOrganization(w http.ResponseWriter, r *http.Request) {
+	uuid := chi.URLParam(r, "uuid")
+
+	// TODO(authorization): ensure admin or part of organization
+
+	type resp struct {
+		DisplayName string `json:"displayName"`
+		Description string `json:"description"`
+	}
+
+	response, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+		c := proto.NewProfileServiceClient(conn)
+		profile, err := c.GetOrganizationProfile(ctx, &proto.GetOrganizationProfileRequest{Uuid: uuid})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return resp{
+			DisplayName: profile.DisplayName,
+			Description: profile.Description,
+		}, nil
+	})
+
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
+
+	helpers.WriteSuccessJson(w, r, response)
+}
+
+func updateProfileOrganization(w http.ResponseWriter, r *http.Request) {
+	uuid := chi.URLParam(r, "uuid")
+
+	// TODO(authorization): ensure admin or org admin
+
+	var req struct {
+		DisplayName string `json:"displayName"`
+		Description string `json:"description"`
+	}
+
+	err := helpers.GetJsonFromRequestBody(r, &req)
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
+
+	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+		c := proto.NewProfileServiceClient(conn)
+		_, err := c.UpdateOrganizationProfile(ctx, &proto.UpdateOrganizationProfileRequest{
+			Uuid:        uuid,
+			DisplayName: req.DisplayName,
+			Description: req.Description,
+		})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return nil, nil
+	})
+
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
+
+	helpers.WriteSuccess(w, r)
+}
+
+func createProfileOrganization(w http.ResponseWriter, r *http.Request) {
+	uuid := chi.URLParam(r, "uuid")
+
+	// TODO(authorization): ensure admin or org admin
+	// TODO(validation): check if already exists
+
+	var req struct {
+		DisplayName string `json:"displayName"`
+		Description string `json:"description"`
+	}
+
+	err := helpers.GetJsonFromRequestBody(r, &req)
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
+
+	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+		c := proto.NewProfileServiceClient(conn)
+		_, err := c.CreateOrganizationProfile(ctx, &proto.CreateOrganizationProfileRequest{
+			Uuid:        uuid,
+			DisplayName: req.DisplayName,
+			Description: req.Description,
+		})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return nil, nil
+	})
+
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
+
+	helpers.WriteSuccess(w, r)
+}
