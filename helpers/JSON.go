@@ -15,9 +15,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-func GetJsonFromPostRequest(r *http.Request, v interface{}) error {
-	if r.Method != "POST" {
-		return errors.New(fmt.Sprintf("expected a POST request, received %s", r.Method))
+func GetJsonFromRequestBody(r *http.Request, v interface{}) error {
+	if r.Method == "GET" {
+		return errors.New("cannot call GetJsonFromRequestBody on a GET request")
 	}
 
 	bodyBytes, _ := ioutil.ReadAll(r.Body)
@@ -29,7 +29,7 @@ func GetJsonFromPostRequest(r *http.Request, v interface{}) error {
 	return nil
 }
 
-func WriteSuccess(w http.ResponseWriter, r *http.Request) {
+func WriteSuccess(_ http.ResponseWriter, _ *http.Request) {
 	log.Printf("Returning success without payload")
 	// nothing to do, using this method to log and possibly extend in the future
 }

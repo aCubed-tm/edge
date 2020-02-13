@@ -55,7 +55,7 @@ func updateProfileUser(w http.ResponseWriter, r *http.Request) {
 		Description string `json:"description"`
 	}
 
-	err := helpers.GetJsonFromPostRequest(r, &req)
+	err := helpers.GetJsonFromRequestBody(r, &req)
 	if err != nil {
 		helpers.WriteErrorJson(w, r, err)
 		return
@@ -95,7 +95,7 @@ func createProfileUser(w http.ResponseWriter, r *http.Request) {
 		Description string `json:"description"`
 	}
 
-	err := helpers.GetJsonFromPostRequest(r, &req)
+	err := helpers.GetJsonFromRequestBody(r, &req)
 	if err != nil {
 		helpers.WriteErrorJson(w, r, err)
 		return
