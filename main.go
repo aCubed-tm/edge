@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/acubed-tm/edge/api/auth"
+	"github.com/acubed-tm/edge/api/profile"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
@@ -37,6 +38,7 @@ func Routes() *chi.Mux {
 	router.Get("/", ShowAPIInfo)
 	router.Route("/v1", func(r chi.Router) {
 		r.Mount("/auth", auth.Routes())
+		r.Mount("/profile", profile.Routes())
 	})
 
 	return router
