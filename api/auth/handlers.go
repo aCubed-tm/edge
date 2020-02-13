@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+
 	"github.com/acubed-tm/edge/helpers"
-	"github.com/acubed-tm/edge/protofiles"
+	proto "github.com/acubed-tm/edge/protofiles"
 	"github.com/go-chi/chi"
 	"google.golang.org/grpc"
-	"net/http"
 )
 
 const service = "authentication-service.acubed:50551"
@@ -111,7 +112,7 @@ func getUserUuidAndInvites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if accountUuid == nil {
+	if accountUuid == nil || accountUuid == "" {
 		// could return empty response too
 		helpers.WriteErrorJson(w, r, errors.New("email not found"))
 		return
