@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-const service = "authentication-service.acubed:50551"
+const service = "profile-service.acubed:50551"
 
 func getProfileUser(w http.ResponseWriter, r *http.Request) {
 	uuid := chi.URLParam(r, "uuid")
