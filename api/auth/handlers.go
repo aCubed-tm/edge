@@ -20,7 +20,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 
-	err := helpers.GetJsonFromPostRequest(r, &req)
+	err := helpers.GetJsonFromRequestBody(r, &req)
 	if err != nil {
 		helpers.WriteErrorJson(w, r, err)
 		return
@@ -50,7 +50,7 @@ func authenticate(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 
-	err := helpers.GetJsonFromPostRequest(r, &req)
+	err := helpers.GetJsonFromRequestBody(r, &req)
 	if err != nil {
 		helpers.WriteErrorJson(w, r, err)
 		return
@@ -87,7 +87,7 @@ func getUserUuidAndInvites(w http.ResponseWriter, r *http.Request) {
 		Invites []string `json:"invites"`
 	}
 
-	err := helpers.GetJsonFromPostRequest(r, &req)
+	err := helpers.GetJsonFromRequestBody(r, &req)
 	if err != nil {
 		helpers.WriteErrorJson(w, r, err)
 		return
