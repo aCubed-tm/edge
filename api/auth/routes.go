@@ -13,7 +13,7 @@ func Routes() *chi.Mux {
 	router.Get("/close", dropCurrentToken)
 	router.Get("/logout", dropAllTokens)
 
-	router.Put("/email/{uuid}", putEmail)
+	router.Put("/email/{uuid}", updateEmail)
 	router.Post("/email/", addEmail)
 	router.Delete("/email/{uuid}", deleteEmail)
 

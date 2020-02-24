@@ -205,7 +205,7 @@ func dropAllTokens(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteSuccess(w, r)
 }
 
-func putEmail(w http.ResponseWriter, r *http.Request) {
+func updateEmail(w http.ResponseWriter, r *http.Request) {
 	// TODO(authorization): if admin or self
 	emailUuid := chi.URLParam(r, "uuid")
 
@@ -237,6 +237,8 @@ func putEmail(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteErrorJson(w, r, err)
 		return
 	}
+
+	helpers.WriteSuccess(w, r)
 }
 
 func addEmail(w http.ResponseWriter, r *http.Request) {
@@ -255,7 +257,7 @@ func addEmail(w http.ResponseWriter, r *http.Request) {
 
 	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
 		c := proto.NewAuthServiceClient(conn)
-		_, err := c.AddEmail(ctx, &proto.AddEmailRequest{
+		_, err := c.AddEmail(ctx, &proto.AddEmailRequest{ // returns verification token and email uuid
 			AccountUuid: req.UserUuid,
 			Email:       req.Email,
 		})
@@ -269,6 +271,8 @@ func addEmail(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteErrorJson(w, r, err)
 		return
 	}
+
+	helpers.WriteSuccess(w, r)
 }
 
 func deleteEmail(w http.ResponseWriter, r *http.Request) {
@@ -290,6 +294,8 @@ func deleteEmail(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteErrorJson(w, r, err)
 		return
 	}
+
+	helpers.WriteSuccess(w, r)
 }
 
 // TODO: should move this to helper function
