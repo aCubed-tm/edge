@@ -227,3 +227,38 @@ func createProfileOrganization(w http.ResponseWriter, r *http.Request) {
 
 	helpers.WriteSuccess(w, r)
 }
+
+func getUserEmails(w http.ResponseWriter, r *http.Request) {
+	// TODO(authorization): ensure admin or self
+	uuid := chi.URLParam(r, "uuid")
+
+	type resp struct {
+		Email     string `json:"emailAddress"`
+		IsPrimary bool   `json:"isPrimary"`
+	}
+
+	response, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+		c := proto.NewProfileServiceClient(conn)
+		emails, err := c.GetEmails(ctx, &proto.GetEmailsRequest{Uuid: uuid})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
+		ret := make([]resp, len(emails.Emails))
+		for i, e := range emails.Emails {
+			ret[i] = resp{
+				Email:     e.Email,
+				IsPrimary: e.IsPrimary,
+			}
+		}
+
+		return ret, nil
+	})
+
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
+
+	helpers.WriteSuccessJson(w, r, response)
+}
