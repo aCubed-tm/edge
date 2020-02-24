@@ -8,6 +8,7 @@ require (
 	github.com/golang/protobuf v1.3.3
 	github.com/joho/godotenv v1.3.0
 	github.com/keegancsmith/rpc v1.1.0 // indirect
+	github.com/rs/cors v1.7.0 // indirect
 	golang.org/x/net v0.0.0-20200202094626-16171245cfb2 // indirect
 	golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5 // indirect
 	golang.org/x/text v0.3.2 // indirect

@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 )
 
 func ShowAPIInfo(w http.ResponseWriter, r *http.Request) {
@@ -28,11 +29,12 @@ func ShowAPIInfo(w http.ResponseWriter, r *http.Request) {
 func Routes() *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(
+		cors.Default().Handler,                        // Set default CORS headers
 		render.SetContentType(render.ContentTypeJSON), // Set content-Type headers as application/json
-		middleware.Logger,          // Log API request calls
-		middleware.DefaultCompress, // Compress results, mostly gzipping assets and json
-		middleware.RedirectSlashes, // Redirect slashes to no slash URL versions
-		middleware.Recoverer,       // Recover from panics without crashing server
+		middleware.Logger,                             // Log API request calls
+		middleware.DefaultCompress,                    // Compress results, mostly gzipping assets and json
+		middleware.RedirectSlashes,                    // Redirect slashes to no slash URL versions
+		middleware.Recoverer,                          // Recover from panics without crashing server
 	)
 
 	router.Get("/", ShowAPIInfo)
