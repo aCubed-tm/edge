@@ -13,5 +13,7 @@ func Routes() *chi.Mux {
 	router.Put("/organisation/{uuid}", updateProfileOrganization)
 	router.Post("/organisation/{uuid}", createProfileOrganization)
 
+	router.Get("/user/{uuid}/emails", getUserEmails)
+
 	return router
 }
