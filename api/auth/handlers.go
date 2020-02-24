@@ -112,16 +112,14 @@ func getUserUuidAndInvites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if accountUuid == nil || accountUuid == "" {
-		// could return empty response too
-		helpers.WriteErrorJson(w, r, errors.New("email not found"))
-		return
+	if accountUuid == nil {
+		accountUuid = ""
 	}
 
 	inviteUuids, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
 		// Contact the server and print out its response.
 		c := proto.NewAuthServiceClient(conn)
-		resp, err := c.GetInvites(ctx, &proto.GetInvitesRequest{AccountUuid: accountUuid.(string)})
+		resp, err := c.GetInvitesByEmail(ctx, &proto.GetInvitesByEmailRequest{Email: req.Email})
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
