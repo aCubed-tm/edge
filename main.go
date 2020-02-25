@@ -31,10 +31,9 @@ func Routes() *chi.Mux {
 	router := chi.NewRouter()
 
 	corsm := cors.New(cors.Options{
-		AllowedOrigins:   []string{"https://portal.acubed.app", "http://localhost:8080", "http://localhost:8081", "http://localhost"},
-		AllowCredentials: true,
+		AllowedHeaders: []string{"*"},
 		// Enable Debugging for testing, consider disabling in production
-		// Debug: true,
+		Debug: true,
 	})
 
 	router.Use(
