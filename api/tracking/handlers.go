@@ -58,6 +58,7 @@ type objectLocation struct {
 func getAllObjects(w http.ResponseWriter, r *http.Request) {
 	type objectInfo struct {
 		Uuid     string         `json:"uuid"`
+		Name     string         `json:"name"`
 		Note     string         `json:"note"`
 		Location objectLocation `json:"lastLocation"`
 	}
@@ -74,6 +75,7 @@ func getAllObjects(w http.ResponseWriter, r *http.Request) {
 		for i, e := range resp.Objects {
 			ret[i] = objectInfo{
 				Uuid: e.Uuid,
+				Name: e.Name,
 				Note: e.Note,
 				Location: objectLocation{
 					X:    e.LastLocation.X,
