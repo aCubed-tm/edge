@@ -204,3 +204,120 @@ func dropAllTokens(w http.ResponseWriter, r *http.Request) {
 
 	helpers.WriteSuccess(w, r)
 }
+
+func updateEmail(w http.ResponseWriter, r *http.Request) {
+	// TODO(authorization): if admin or self
+	emailUuid := chi.URLParam(r, "uuid")
+
+	var req struct {
+		IsPrimary bool `json:"isPrimary"` // should always be true
+	}
+
+	err := helpers.GetJsonFromRequestBody(r, &req)
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
+
+	if !req.IsPrimary {
+		helpers.WriteErrorJson(w, r, errors.New("cannot make email non-primary, make another email primary instead"))
+		return
+	}
+
+	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+		c := proto.NewAuthServiceClient(conn)
+		_, err := c.MakeEmailPrimary(ctx, &proto.MakeEmailPrimaryRequest{EmailUuid: emailUuid})
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	})
+
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
+
+	helpers.WriteSuccess(w, r)
+}
+
+func addEmail(w http.ResponseWriter, r *http.Request) {
+	// TODO(authorization): if admin or self
+	// TODO: send verification email
+	var req struct {
+		UserUuid string `json:"userUuid"`
+		Email    string `json:"email"`
+	}
+
+	err := helpers.GetJsonFromRequestBody(r, &req)
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
+
+	_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+		c := proto.NewAuthServiceClient(conn)
+		_, err := c.AddEmail(ctx, &proto.AddEmailRequest{ // returns verification token and email uuid
+			AccountUuid: req.UserUuid,
+			Email:       req.Email,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	})
+
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
+
+	helpers.WriteSuccess(w, r)
+}
+
+func deleteEmail(w http.ResponseWriter, r *http.Request) {
+	// TODO(authorization): if admin or self
+	emailUuid := chi.URLParam(r, "uuid")
+
+	_, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+		c := proto.NewAuthServiceClient(conn)
+		_, err := c.DeleteEmail(ctx, &proto.DeleteEmailRequest{
+			Uuid: emailUuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	})
+
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
+
+	helpers.WriteSuccess(w, r)
+}
+
+// TODO: should move this to helper function
+func _(w http.ResponseWriter, r *http.Request) (string, error) { // getCurrentUserUuid
+	token, err := helpers.GetJwtToken(r)
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return "", nil
+	}
+
+	accountUuid, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+		// Contact the server and print out its response.
+		c := proto.NewAuthServiceClient(conn)
+		resp, err := c.GetUuidFromToken(ctx, &proto.GetUuidFromTokenRequest{Token: token})
+		if err != nil {
+			return "", errors.New(err.Error())
+		}
+		return resp.Uuid, nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+	return accountUuid.(string), nil
+}
