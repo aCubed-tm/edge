@@ -28,13 +28,21 @@ func ShowAPIInfo(w http.ResponseWriter, r *http.Request) {
 
 func Routes() *chi.Mux {
 	router := chi.NewRouter()
+
+	corsm := cors.New(cors.Options{
+		AllowedOrigins:   []string{"https://portal.acubed.app", "http://localhost:8080", "http://localhost:8081", "http://localhost"},
+		AllowCredentials: true,
+		// Enable Debugging for testing, consider disabling in production
+		// Debug: true,
+	})
+
 	router.Use(
-		cors.Default().Handler,                        // Set default CORS headers
+		corsm.Handler, // Set default CORS headers
 		render.SetContentType(render.ContentTypeJSON), // Set content-Type headers as application/json
-		middleware.Logger,                             // Log API request calls
-		middleware.DefaultCompress,                    // Compress results, mostly gzipping assets and json
-		middleware.RedirectSlashes,                    // Redirect slashes to no slash URL versions
-		middleware.Recoverer,                          // Recover from panics without crashing server
+		middleware.Logger,          // Log API request calls
+		middleware.DefaultCompress, // Compress results, mostly gzipping assets and json
+		middleware.RedirectSlashes, // Redirect slashes to no slash URL versions
+		middleware.Recoverer,       // Recover from panics without crashing server
 	)
 
 	router.Get("/", ShowAPIInfo)
