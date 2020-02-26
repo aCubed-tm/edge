@@ -15,7 +15,7 @@ func addCapture(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		CaptureX   float32 `json:"captureX"`
 		CaptureY   float32 `json:"captureY"`
-		Time       string  `json:"time"`
+		Time       int64   `json:"time"`
 		ObjectUuid string  `json:"objectUuid"`
 		CameraUuid string  `json:"cameraUuid"`
 	}
