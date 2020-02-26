@@ -53,9 +53,9 @@ func addCapture(w http.ResponseWriter, r *http.Request) {
 }
 
 type objectLocation struct {
-	X    float32 `json:"x"`
-	Y    float32 `json:"y"`
-	Z    float32 `json:"z"`
+	X    float64 `json:"x"`
+	Y    float64 `json:"y"`
+	Z    float64 `json:"z"`
 	Time int64   `json:"time"`
 }
 
