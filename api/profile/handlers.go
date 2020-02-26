@@ -235,6 +235,7 @@ func getUserEmails(w http.ResponseWriter, r *http.Request) {
 	type resp struct {
 		Email     string `json:"emailAddress"`
 		IsPrimary bool   `json:"isPrimary"`
+		Uuid      string `json:"uuid"`
 	}
 
 	response, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
@@ -249,6 +250,7 @@ func getUserEmails(w http.ResponseWriter, r *http.Request) {
 			ret[i] = resp{
 				Email:     e.Email,
 				IsPrimary: e.IsPrimary,
+				Uuid:      e.Uuid,
 			}
 		}
 
