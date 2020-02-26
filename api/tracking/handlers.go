@@ -15,7 +15,7 @@ func addCapture(w http.ResponseWriter, r *http.Request) {
 	// this struct may change
 	var req []struct {
 		CaptureX   float32 `json:"x"`
-		CaptureY   float32 `json:"x"`
+		CaptureY   float32 `json:"y"`
 		Time       int32   `json:"time"`
 		ObjectUuid string  `json:"code"`
 		CameraUuid string  `json:"camera"`
@@ -63,7 +63,14 @@ func getAllObjects(w http.ResponseWriter, r *http.Request) {
 		Location objectLocation `json:"lastLocation"`
 	}
 
-	// TODO: ask to update object locations
+	_, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+		c := proto.NewTrackingServiceClient(conn)
+		return c.UpdatePositions(ctx, &proto.UpdatePositionsRequest{Uuid:""})
+	})
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
 
 	objects, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
 		c := proto.NewTrackingServiceClient(conn)
@@ -99,7 +106,14 @@ func getAllObjects(w http.ResponseWriter, r *http.Request) {
 func getObject(w http.ResponseWriter, r *http.Request) {
 	uuid := chi.URLParam(r, "uuid")
 
-	// TODO: ask to update object locations
+	_, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
+		c := proto.NewTrackingServiceClient(conn)
+		return c.UpdatePositions(ctx, &proto.UpdatePositionsRequest{Uuid:uuid})
+	})
+	if err != nil {
+		helpers.WriteErrorJson(w, r, err)
+		return
+	}
 
 	objects, err := helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
 		c := proto.NewTrackingServiceClient(conn)
