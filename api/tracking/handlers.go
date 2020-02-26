@@ -16,7 +16,7 @@ func addCapture(w http.ResponseWriter, r *http.Request) {
 	var req []struct {
 		CaptureX   float32 `json:"x"`
 		CaptureY   float32 `json:"y"`
-		Time       int32   `json:"time"`
+		Time       int64   `json:"time"`
 		ObjectUuid string  `json:"code"`
 		CameraUuid string  `json:"camera"`
 	}
@@ -28,6 +28,10 @@ func addCapture(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, e := range req {
+		// ensure ms epochs
+		if e.Time < 1500000000000 {
+			e.Time *= 1000
+		}
 		_, err = helpers.RunGrpc(service, func(ctx context.Context, conn *grpc.ClientConn) (interface{}, error) {
 			c := proto.NewTrackingServiceClient(conn)
 			return c.AddCapture(ctx, &proto.AddCaptureRequest{
@@ -52,7 +56,7 @@ type objectLocation struct {
 	X    float32 `json:"x"`
 	Y    float32 `json:"y"`
 	Z    float32 `json:"z"`
-	Time int32   `json:"time"`
+	Time int64   `json:"time"`
 }
 
 func getAllObjects(w http.ResponseWriter, r *http.Request) {
