@@ -249,6 +249,7 @@ func getUserEmails(w http.ResponseWriter, r *http.Request) {
 			ret[i] = resp{
 				Email:     e.Email,
 				IsPrimary: e.IsPrimary,
+				Uuid: e.uuid
 			}
 		}
 
